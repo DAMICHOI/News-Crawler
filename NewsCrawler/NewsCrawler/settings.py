@@ -11,13 +11,14 @@ BOT_NAME = 'NewsCrawler'
 
 SPIDER_MODULES = ['NewsCrawler.spiders']
 NEWSPIDER_MODULE = 'NewsCrawler.spiders'
-
+LOG_LEVEL = 'INFO'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'NewsCrawler (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+# ROBOTSTXT_OBEY = True
+ITEM_PIPELINES = {'NewsCrawler.pipelines.CsvPipeline' : 300, }
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
