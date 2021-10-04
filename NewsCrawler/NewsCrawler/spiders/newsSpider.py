@@ -29,24 +29,8 @@ class NewsUrlSpider(scrapy.Spider):
         for company in companies:
             maxpage = get_maxpage(url.format(company, self.date, 1))
         
-            # maxpage = scrapy.Request(url.format(company, self.date, 1),self.get_maxpage)
-            # print(maxpage)
             for page in range(1, maxpage + 1):
-                yield scrapy.Request(url.format(company, self.date, page), self.parse_url)
-
-    # def get_maxpage(self, response):
-    #     text = response.xpath('//*[@id="resultCntArea"]/text()').extract()
-    #     total_count = re.sub('[^0-9]', '', text.split('/')[1])
-    #     print(total_count)
-    #         # page_size = 10
-    #     total_pages = math.ceil(int(total_count) / 10)
-
-    #     return total_pages
-    #         # for page in range(1, self.total_pages):
-    #         #     yield scrapy.Request(self.url.format(company, self.date, page),
-    #         #                          self.parse_url)
-
-    
+                yield scrapy.Request(url.format(company, self.date, page), self.parse_url)    
 
 
     def parse_url(self, response):
@@ -56,16 +40,8 @@ class NewsUrlSpider(scrapy.Spider):
             item['company'] = response.xpath('//*[@id="saq"]/text()').extract()[0]   # 회사
             item['title'] = li.xpath('div[@class="wrap_cont"]/a/text()').extract() # 제목
             item['date'] = self.date # 작성일
-            item['url'] = li.xpath('div[@class="wrap_cont"]/a/@href').extract()[0]
-            item['photo'] = li.xpath('div[@class="wrap_thumb"]/a/img/@src').extract()[0]
-
-            # print('*' * 100)
-            # print(item['title'])
-            # print(item['company'])
-            # print(item['journal'])
-            # print(item['date'])
-            # print(item['url'])
-            # print(item['photo'])
+            item['newsUrl'] = li.xpath('div[@class="wrap_cont"]/a/@href').extract()[0]
+            item['photoUrl'] = li.xpath('div[@class="wrap_thumb"]/a/img/@src').extract()[0]
 
             yield item
 
