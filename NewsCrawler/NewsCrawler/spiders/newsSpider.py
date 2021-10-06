@@ -8,41 +8,63 @@ import math
 import requests
 from bs4 import BeautifulSoup
 
-def get_maxpage(url):
-        response = requests.get(url)
-        html = response.text
-        soup = BeautifulSoup(html, 'html.parser')
-        cnt = soup.find('span',{'id' : 'resultCntArea'}).get_text()
-        total_count = re.sub('[^0-9]', '', cnt.split('/')[1])
-        total_pages = math.ceil(int(total_count) / 10)
-        return total_pages
+#firebase 연동 
+# import firebase_admin
+# from firebase_admin import credentials
+# from firebase_admin import firestore
+# cred = credentials.Certificate('practice-7ee66-firebase-adminsdk-3aa3r-680925e0d5.json')
+# firebase_admin.initialize_app(cred)
+# db = firestore.client()
+
+
+# 다음 뉴스 최대 페이지 구하는 메소드 
+# def get_maxpage(url):
+#         response = requests.get(url)
+#         html = response.text
+#         soup = BeautifulSoup(html, 'html.parser')
+#         cnt = soup.find('span',{'id' : 'resultCntArea'}).get_text()
+#         total_count = re.sub('[^0-9]', '', cnt.split('/')[1])
+#         total_pages = math.ceil(int(total_count) / 10)
+#         return total_pages
+
 
 class NewsUrlSpider(scrapy.Spider):
     name = "newsCrawler"
-    date = datetime.now().strftime('%Y%m%d')
+    date1 = datetime.now().strftime('%Y.%m.%d')
+    date2 = datetime.now().strftime('%Y%m%d')
     def start_requests(self):
-        url = 'https://search.daum.net/search?w=news&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q={0}&period=u&sd={1}000000&ed={1}235959&p={2}'
+        url = 'https://search.naver.com/search.naver?where=news&sm=tab_pge&query={0}&sort=0&photo=0&field=0&pd=3&ds={1}&de={1}&cluster_rank=102&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so:r,p:from{2}to{2},a:all&start={3}'
         # companies = ['카카오', '네이버', '삼성전자', '현대자동차', '셀트리온', 'SK 이노베이션', 'LG 에너지 솔루션', '라인', '쿠팡', '배달의 민족']
         companies =['카카오']
         
 
         for company in companies:
-            maxpage = get_maxpage(url.format(company, self.date, 1))
+            # maxpage = get_maxpage(url.format(company, self.date, 1))
         
-            for page in range(1, maxpage + 1):
-                yield scrapy.Request(url.format(company, self.date, page), self.parse_url)    
+            # for page in range(1, maxpage + 1):
+            for page in range(1, 12, 10):
+                yield scrapy.Request(url.format(company, self.date1,self.date2, page), self.parse_url)    
 
 
     def parse_url(self, response):
-        for li in response.xpath('//*[@id="newsColl"]/div[1]/ul/li'):
+        for li in response.xpath('//*[@class="bx"]'):
             item = NewscrawlerItem()
-            item['journal'] =  li.xpath('div[@class="wrap_cont"]/span[@class="cont_info"]/span[1]/text()').extract()[0]  # 신문사
-            item['company'] = response.xpath('//*[@id="saq"]/text()').extract()[0]   # 회사
-            item['title'] = li.xpath('div[@class="wrap_cont"]/a/text()').extract() # 제목
-            item['date'] = self.date # 작성일
-            item['newsUrl'] = li.xpath('div[@class="wrap_cont"]/a/@href').extract()[0]
-            item['photoUrl'] = li.xpath('div[@class="wrap_thumb"]/a/img/@src').extract()[0]
-
+            item['journal'] =  li.xpath('div[1]/div/div[1]/div[2]/a[1]/text()').extract()[0]  # 신문사
+            item['company'] = response.xpath('//*[@id="nx_query"]/@value').extract()[0]   # 회사
+            item['title'] = li.xpath('div[1]/div/a/@title').extract()[0] # 제목
+            item['date'] = self.date1 # 작성일
+            item['newsUrl'] = li.xpath('div[1]/div/a/@href').extract()[0]
+            item['photoUrl'] = li.xpath('div[1]/a/img/@src').extract()[0]
+            
+            #db.collection(u'신문기사').document(item['company']).collection(self.date2).set(item)
+            print('*' * 100)
+            print(item['title'])
+            print(item['company'])
+            print(item['journal'])
+            print(item['date'])
+            print(item['newsUrl'])
+            print(item['photoUrl'])
+            print(response)
             yield item
 
     # def start_requests(self):
