@@ -43,7 +43,7 @@ class NewsUrlSpider(scrapy.Spider):
             item['newsUrl'] = li.xpath('div[1]/div/a/@href').extract()[0]
             item['photoUrl'] = li.xpath('div[1]/a/img/@src').extract()
             
-            db.collection(u'신문기사').document(item['company']).collection(self.date2).document().set(item)
+            db.collection(u'신문기사').document().set(item)
        
             yield item
     
