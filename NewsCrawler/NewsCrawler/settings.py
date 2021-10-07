@@ -17,8 +17,8 @@ LOG_LEVEL = 'INFO'
 #USER_AGENT = 'NewsCrawler (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-# ROBOTSTXT_OBEY = True
-ITEM_PIPELINES = {'NewsCrawler.pipelines.CsvPipeline' : 300, }
+ROBOTSTXT_OBEY = False
+ITEM_PIPELINES = {'NewsCrawler.pipelines.JsonPipeline' : 300, }
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
